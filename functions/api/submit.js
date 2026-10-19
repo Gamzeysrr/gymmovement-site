@@ -23,6 +23,12 @@ export async function onRequestPost({ request, env }) {
   const data = Object.fromEntries(Object.keys(FIELDS).map(key => [
     key, clean(input?.[key], key === 'health' || key === 'notes' ? 2000 : 200)
   ]));
+  const phoneDigits = data.phone.replace(/\D/g, '');
+  if (!/^[\d\s()+-]+$/.test(data.phone) || phoneDigits.length !== 11) {
+    return json({ error: 'Telefon numarası 11 rakamdan oluşmalıdır. Örnek: 05XXXXXXXXX.' }, 400);
+  }
+  data.phone = phoneDigits;
+
   if (!data.name || !data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email) ||
       !data.phone || !data.age || !data.height || !data.weight || !data.goal ||
       input?.privacy !== 'on' || input?.contactConsent !== 'on') {
